@@ -35,6 +35,10 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = "Third Text"
                         )
+                        // comment for fourth text
+                        Text(
+                            text = "Fourth Text"
+                        )
                     }
                 }
             }

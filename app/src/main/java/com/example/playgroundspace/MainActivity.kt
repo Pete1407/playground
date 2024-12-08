@@ -26,6 +26,7 @@ class MainActivity : ComponentActivity() {
 //                        modifier = Modifier.padding(innerPadding)
 //                    )
 
+                    // for only test
                     Column(modifier = Modifier.padding(innerPadding)) {
                         Text(
                             text = "First Text"

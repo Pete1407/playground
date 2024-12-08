@@ -27,7 +27,6 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = "First Text"
                         )
-                        // comment for second text
                         Text(
                             text = "Second Text"
                         )

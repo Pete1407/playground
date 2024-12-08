@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
                         Text(
                             text = "Second Text"
                         )
-
+                        // comment for third text
                         Text(
                             text = "Third Text"
                         )

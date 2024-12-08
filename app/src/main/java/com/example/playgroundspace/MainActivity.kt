@@ -21,7 +21,9 @@ class MainActivity : ComponentActivity() {
         setContent {
             PlaygroundSpaceTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+                    // comment for column
                     Column(modifier = Modifier.padding(innerPadding)) {
+                        // comment for first text
                         Text(
                             text = "First Text"
                         )

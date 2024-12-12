@@ -33,7 +33,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,6 +79,8 @@ class MainActivity : ComponentActivity() {
                         SectionBasicTextField()
 
                         SectionAlertDialog()
+
+                        //TestSideEffect()
                     }
                 }
             )
@@ -356,4 +360,23 @@ fun AlertDialogView(
             decorFitsSystemWindows = true,
         )
     )
+}
+
+@Composable
+fun TestSideEffect(){
+    var numberValue by remember {
+        mutableIntStateOf(5)
+    }
+    var secondProveValue by remember {
+        mutableStateOf(true)
+    }
+    //Log.d("debug","see value textValue outside LaunchedEffect --> $textValue")
+    //Log.d("debug","count value --> $count")
+
+    // try LaunchedEffect
+    LaunchedEffect(numberValue, secondProveValue) {
+        Log.d("debug", "see value textValue inside LaunchedEffect --> $numberValue")
+        numberValue = 5
+        secondProveValue = false
+    }
 }

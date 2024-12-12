@@ -24,26 +24,32 @@ class MainActivity : ComponentActivity() {
                     // comment for column
                     Column(modifier = Modifier.padding(innerPadding)) {
                         // comment for first text
-                        Text(
-                            text = "First Text"
-                        )
-                        // comment for second text
-                        Text(
-                            text = "Second Text"
-                        )
-                        // comment for third text
-                        Text(
-                            text = "Third Text"
-                        )
-                        // comment for fourth text
-                        Text(
-                            text = "Fourth Text"
-                        )
+                       TestRevertCommit()
                     }
                 }
             }
         }
     }
+}
+
+@Composable
+fun TestRevertCommit(){
+    // comment for first text
+    Text(
+        text = "First Text"
+    )
+    // comment for second text
+    Text(
+        text = "Second Text"
+    )
+    // comment for third text
+    Text(
+        text = "Third Text"
+    )
+    // comment for fourth text
+    Text(
+        text = "Fourth Text"
+    )
 }
 
 @Composable

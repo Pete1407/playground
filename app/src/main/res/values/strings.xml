@@ -4,4 +4,6 @@
     <string name="alert_dialog_title">Basic dialog title</string>
     <string name="alert_dialog_description">A dialog is a model window that appears in front of app content to provide critical information or ask for a decision</string>
     <string name="title_basic_textfield">Using BasicTextField</string>
+    <string name="button_text_alertdialog">"Show AlertDialog"</string>
+    <string name="button_text_bottomsheet">show BottomSheet</string>
 </resources>

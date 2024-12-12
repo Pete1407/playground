@@ -23,10 +23,15 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Warning
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -38,6 +43,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.colorResource
@@ -52,6 +58,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.DialogProperties
 import com.example.playgroundspace.ui.theme.PaddingAll
 import com.example.playgroundspace.ui.theme.PaddingTop
 import com.example.playgroundspace.ui.theme.PlaygroundSpaceTheme
@@ -61,16 +68,18 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            PlaygroundSpaceTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            Scaffold(
+                content = { paddingValues ->
                     // comment for column
-                    Column(modifier = Modifier.padding(innerPadding)) {
+                    Column(modifier = Modifier.padding(paddingValues)) {
                         // comment for first text
 
                         SectionBasicTextField()
+
+                        SectionAlertDialog()
                     }
                 }
-            }
+            )
         }
     }
 }
@@ -102,7 +111,7 @@ fun SectionBasicTextField() {
         mutableStateOf(TextFieldValue())
     }
 
-    Column(modifier = Modifier.background(Color.White)){
+    Column(modifier = Modifier.background(Color.White)) {
         Text(
             text = stringResource(R.string.title_basic_textfield),
             fontSize = 30.sp,
@@ -261,12 +270,90 @@ fun CustomTextFieldWithButton(
     }
 }
 
+@Preview
 @Composable
 fun SectionAlertDialog() {
+    var openAlertDialog by remember {
+        mutableStateOf(false)
+    }
 
+// ALERT DIALOG
+    Button(
+        onClick = {
+            openAlertDialog = true
+        },
+        modifier = Modifier.padding(PaddingTop)
+    ) {
+        Text(
+            "Show AlertDialog"
+        )
+        when {
+            openAlertDialog -> {
+                AlertDialogView(
+                    onDismissRequest = {
+                        openAlertDialog = false
+                    },
+                    onConfirmEvent = {
+                        openAlertDialog = false
+                    },
+                    dialogTitle = stringResource(R.string.alert_dialog_title),
+                    dialogText = stringResource(R.string.alert_dialog_description),
+                    icon = Icons.Default.Warning
+                )
+            }
+        }
+    }
 }
 
 @Composable
-fun AlertDialogView() {
+fun AlertDialogView(
+    onDismissRequest: () -> Unit,
+    onConfirmEvent: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    icon: ImageVector
+) {
 
+    AlertDialog(
+        modifier = Modifier.fillMaxWidth(0.9f),
+        icon = {
+            Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(
+                text = dialogText
+            )
+        },
+        shape = RoundedCornerShape(10.dp),
+        onDismissRequest = {
+            onDismissRequest()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmEvent()
+                }
+            ) {
+                Text("Logout")
+            }
+        },
+        dismissButton = {
+            TextButton(
+                onClick = {
+                    onDismissRequest()
+                }
+            ) {
+                Text("Cancel")
+            }
+        },
+        properties = DialogProperties(
+            dismissOnBackPress = false,
+            dismissOnClickOutside = false,
+            usePlatformDefaultWidth = false,
+            decorFitsSystemWindows = true,
+        )
+    )
 }

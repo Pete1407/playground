@@ -1,5 +1,6 @@
 package com.example.playgroundspace
 
+import android.app.Activity
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -10,6 +11,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,6 +27,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,10 +39,12 @@ import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -51,6 +56,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -61,6 +67,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
@@ -76,15 +83,18 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.view.WindowCompat
 import com.example.playgroundspace.ui.theme.PaddingAll
 import com.example.playgroundspace.ui.theme.PaddingTop
 import com.example.playgroundspace.ui.theme.PlaygroundSpaceTheme
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
+            WindowCompat.setDecorFitsSystemWindows(window,false)
             Scaffold(
                 content = { paddingValues ->
                     // comment for column
@@ -94,6 +104,9 @@ class MainActivity : ComponentActivity() {
                         SectionBasicTextField()
 
                         SectionAlertDialog()
+
+                        SectionCustomAlertDialog()
+
 
                         //TestSideEffect()
                     }
@@ -303,10 +316,13 @@ fun SectionAlertDialog() {
         onClick = {
             openAlertDialog = true
         },
-        modifier = Modifier.padding(PaddingTop)
+        modifier = Modifier.padding(PaddingTop),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Blue
+        )
     ) {
         Text(
-            stringResource(R.string.button_text_alertdialog)
+            stringResource(R.string.button_text_alertdialog),
         )
         when {
             openAlertDialog -> {
@@ -398,52 +414,114 @@ fun TestSideEffect(){
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SectionMyBottomSheetDialog(){
-    var showBottomSheet by remember {
+    val coroutineScope = rememberCoroutineScope()
+    val bottomSheetState = rememberModalBottomSheetState()
+    var showMyBottomSheet by remember {
         mutableStateOf(false)
     }
     Button(onClick = {
-        showBottomSheet = true
-    }) {
+        coroutineScope.launch {
+            showMyBottomSheet = true
+        }
+    },
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Blue
+        )
+    ) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
             contentDescription = "",
             modifier = Modifier.size(50.dp)
         )
 
-        if(showBottomSheet){
-            MyBottomSheetDialog(
+        if(showMyBottomSheet){
+            ModalBottomSheet(
                 onDismissRequest = {
-                    showBottomSheet = false
+                    coroutineScope.launch {
+                        showMyBottomSheet = false
+                    }
+                },
+                sheetState = bottomSheetState,
+                containerColor = Color.Blue
+            ){
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .windowInsetsPadding(WindowInsets.safeDrawing),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ){
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ){
+                        Image(
+                            painter = painterResource(R.drawable.ic_close_white),
+                            contentDescription = "",
+                            modifier = Modifier.size(25.dp).clickable {
+                                coroutineScope.launch {
+                                    bottomSheetState.hide()
+                                }.invokeOnCompletion {
+                                    // must use invokeOnCompletion for animation
+                                    // of hiding of bottom sheet and
+                                    // must check if bottom sheet's is hide to render smooth animation
+                                    if(!bottomSheetState.isVisible){
+                                        showMyBottomSheet = false
+                                    }
+                                }
+                            }
+                        )
+                        Spacer(modifier = Modifier.padding(end = 16.dp))
+                    }
+                    ShowOrderList()
                 }
-            )
+            }
         }
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyBottomSheetDialog(
-    onDismissRequest : () -> Unit
-){
-    val sheetState = rememberModalBottomSheetState()
+fun SectionCustomAlertDialog() {
+    var openAlertDialog by remember {
+        mutableStateOf(false)
+    }
 
-    ModalBottomSheet(
-        onDismissRequest = {
-            onDismissRequest.invoke()
+// ALERT DIALOG
+    Button(
+        onClick = {
+            openAlertDialog = true
         },
-        sheetState = sheetState,
-    ){
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(WindowInsets.safeDrawing),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ){
-            Text("BottomSheet", fontStyle = FontStyle.Italic, fontSize = 30.sp)
-            ShowOrderList()
+        modifier = Modifier.padding(PaddingTop),
+        colors = ButtonDefaults.buttonColors(
+            containerColor = Color.Blue
+        )
+    ) {
+        Text(
+            "custom alertDialog"
+        )
+        if(openAlertDialog){
+            AlertDialog(
+                shape = RoundedCornerShape(16.dp),
+                onDismissRequest = { openAlertDialog = false },
+                containerColor = Color.Blue,
+                text = {
+                    Text(
+                        text = "I have rounded corners",
+                        color = Color.White
+                    )
+                },
+                confirmButton = {
+                    TextButton(onClick = { openAlertDialog = false }) {
+                        Text(
+                            text = "Dismiss",
+                            color = Color.White
+                        )
+                    }
+                },
+            )
         }
     }
 }
@@ -452,9 +530,26 @@ fun MyBottomSheetDialog(
 fun ShowOrderList(){
     LazyColumn {
         items(orderList){ item ->
-            Text(text = item)
+            ItemView(title = item)
         }
     }
 }
 
-val orderList = listOf<String>("First","Second","third","Fourth","Fifth","Sixth","Seventh")
+@Composable
+fun ItemView(title : String){
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically
+    ){
+        Image(
+            painter = painterResource(R.drawable.ic_launcher_foreground),
+            contentDescription = ""
+        )
+        Text(
+            text = title,
+            fontSize = 25.sp,
+        )
+    }
+}
+
+val orderList = listOf("First","Second","third","Fourth","Fifth","Sixth","Seventh")

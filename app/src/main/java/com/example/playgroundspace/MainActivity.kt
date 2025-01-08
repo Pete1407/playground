@@ -52,6 +52,7 @@ import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -108,7 +109,9 @@ class MainActivity : ComponentActivity() {
                         SectionCustomAlertDialog()
 
 
-                        //TestSideEffect()
+                        TestLaunchedEffectCode()
+
+                        //TestSideEffectCode()
                     }
                 },
                 floatingActionButton = {
@@ -396,7 +399,7 @@ fun AlertDialogView(
 }
 
 @Composable
-fun TestSideEffect(){
+fun TestLaunchedEffectCode(){
     var numberValue by remember {
         mutableIntStateOf(5)
     }
@@ -409,7 +412,7 @@ fun TestSideEffect(){
     // try LaunchedEffect
     LaunchedEffect(numberValue, secondProveValue) {
         Log.d("debug", "see value textValue inside LaunchedEffect --> $numberValue")
-        numberValue = 5
+        numberValue = 8
         secondProveValue = false
     }
 }
@@ -422,7 +425,7 @@ fun SectionMyBottomSheetDialog(){
     var showMyBottomSheet by remember {
         mutableStateOf(false)
     }
-    
+
     Button(onClick = {
         coroutineScope.launch {
             showMyBottomSheet = true
@@ -551,6 +554,17 @@ fun ItemView(title : String){
             fontSize = 25.sp,
         )
     }
+}
+
+@Composable
+private fun TestSideEffectCode(){
+    var ref by remember { mutableIntStateOf(0) }
+    // always run when recompose
+    SideEffect {
+        ref++
+    }
+    Log.d("debug","ref value --> $ref")
+
 }
 
 val orderList = listOf("First","Second","third","Fourth","Fifth","Sixth","Seventh")

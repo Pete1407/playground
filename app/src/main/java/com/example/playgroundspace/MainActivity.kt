@@ -53,6 +53,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
@@ -149,7 +150,13 @@ fun SectionBasicTextField() {
         mutableStateOf(TextFieldValue())
     }
 
-    Column(modifier = Modifier.background(Color.White)) {
+    val redeemValue by remember {
+        derivedStateOf{
+           inputRedeemPoint.text.length % 2 == 0
+        }
+    }
+
+    Column(modifier = Modifier.background(Color.White).fillMaxWidth()) {
         Text(
             text = stringResource(R.string.title_basic_textfield),
             fontSize = 30.sp,
@@ -170,7 +177,19 @@ fun SectionBasicTextField() {
             },
             buttonText = "use All"
         )
+
+        Text(
+            text = "redeem value is ${computeOddAndEvenNumber(redeemValue)}",
+            fontSize = 18.sp,
+            color = Color.Blue,
+            modifier = Modifier.fillMaxWidth()
+                .padding(vertical = 16.dp, horizontal = 16.dp)
+        )
     }
+}
+
+private fun computeOddAndEvenNumber(isEvenNumber : Boolean):String{
+   return if(isEvenNumber) "Even number" else "Odd number"
 }
 
 @Composable

@@ -60,6 +60,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -89,6 +90,8 @@ import androidx.core.view.WindowCompat
 import com.example.playgroundspace.ui.theme.PaddingAll
 import com.example.playgroundspace.ui.theme.PaddingTop
 import com.example.playgroundspace.ui.theme.PlaygroundSpaceTheme
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -96,7 +99,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            WindowCompat.setDecorFitsSystemWindows(window,false)
+            WindowCompat.setDecorFitsSystemWindows(window, false)
             Scaffold(
                 content = { paddingValues ->
                     // comment for column
@@ -143,6 +146,7 @@ fun TestRevertCommit() {
     )
 }
 
+@OptIn(FlowPreview::class)
 @Preview
 @Composable
 fun SectionBasicTextField() {
@@ -151,12 +155,20 @@ fun SectionBasicTextField() {
     }
 
     val redeemValue by remember {
-        derivedStateOf{
-           inputRedeemPoint.text.length % 2 == 0
+        derivedStateOf {
+            inputRedeemPoint.text.length % 2 == 0
         }
     }
 
-    Column(modifier = Modifier.background(Color.White).fillMaxWidth()) {
+    var countClick by remember {
+        mutableIntStateOf(0)
+    }
+
+    Column(
+        modifier = Modifier
+            .background(Color.White)
+            .fillMaxWidth()
+    ) {
         Text(
             text = stringResource(R.string.title_basic_textfield),
             fontSize = 30.sp,
@@ -174,6 +186,7 @@ fun SectionBasicTextField() {
             },
             onButtonClick = {
                 Log.d("debug", "click button")
+                countClick++
             },
             buttonText = "use All"
         )
@@ -182,14 +195,30 @@ fun SectionBasicTextField() {
             text = "redeem value is ${computeOddAndEvenNumber(redeemValue)}",
             fontSize = 18.sp,
             color = Color.Blue,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(vertical = 16.dp, horizontal = 16.dp)
         )
+
+        Text(
+            text = "test snapshot flow with compose",
+            fontSize = 16.sp,
+            modifier = Modifier.padding(16.dp)
+        )
+
+        LaunchedEffect(countClick) {
+            snapshotFlow {
+                countClick
+            }.debounce(3000)
+                .collect { result ->
+                    Log.d("debug","count click value --> $result")
+                }
+        }
     }
 }
 
-private fun computeOddAndEvenNumber(isEvenNumber : Boolean):String{
-   return if(isEvenNumber) "Even number" else "Odd number"
+private fun computeOddAndEvenNumber(isEvenNumber: Boolean): String {
+    return if (isEvenNumber) "Even number" else "Odd number"
 }
 
 @Composable
@@ -418,7 +447,7 @@ fun AlertDialogView(
 }
 
 @Composable
-fun TestLaunchedEffectCode(){
+fun TestLaunchedEffectCode() {
     var numberValue by remember {
         mutableIntStateOf(5)
     }
@@ -438,18 +467,19 @@ fun TestLaunchedEffectCode(){
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SectionMyBottomSheetDialog(){
+fun SectionMyBottomSheetDialog() {
     val coroutineScope = rememberCoroutineScope()
     val bottomSheetState = rememberModalBottomSheetState()
     var showMyBottomSheet by remember {
         mutableStateOf(false)
     }
 
-    Button(onClick = {
-        coroutineScope.launch {
-            showMyBottomSheet = true
-        }
-    },
+    Button(
+        onClick = {
+            coroutineScope.launch {
+                showMyBottomSheet = true
+            }
+        },
         colors = ButtonDefaults.buttonColors(
             containerColor = Color.Blue
         )
@@ -460,7 +490,7 @@ fun SectionMyBottomSheetDialog(){
             modifier = Modifier.size(50.dp)
         )
 
-        if(showMyBottomSheet){
+        if (showMyBottomSheet) {
             ModalBottomSheet(
                 onDismissRequest = {
                     coroutineScope.launch {
@@ -469,33 +499,37 @@ fun SectionMyBottomSheetDialog(){
                 },
                 sheetState = bottomSheetState,
                 containerColor = Color.Blue
-            ){
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .windowInsetsPadding(WindowInsets.safeDrawing),
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally,
-                ){
+                ) {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.End
-                    ){
+                    ) {
                         Image(
                             painter = painterResource(R.drawable.ic_close_white),
                             contentDescription = "",
-                            modifier = Modifier.size(25.dp).clickable {
-                                coroutineScope.launch {
-                                    bottomSheetState.hide()
-                                }.invokeOnCompletion {
-                                    // must use invokeOnCompletion for animation
-                                    // of hiding of bottom sheet and
-                                    // must check if bottom sheet's is hide to render smooth animation
-                                    if(!bottomSheetState.isVisible){
-                                        showMyBottomSheet = false
-                                    }
+                            modifier = Modifier
+                                .size(25.dp)
+                                .clickable {
+                                    coroutineScope
+                                        .launch {
+                                            bottomSheetState.hide()
+                                        }
+                                        .invokeOnCompletion {
+                                            // must use invokeOnCompletion for animation
+                                            // of hiding of bottom sheet and
+                                            // must check if bottom sheet's is hide to render smooth animation
+                                            if (!bottomSheetState.isVisible) {
+                                                showMyBottomSheet = false
+                                            }
+                                        }
                                 }
-                            }
                         )
                         Spacer(modifier = Modifier.padding(end = 16.dp))
                     }
@@ -525,7 +559,7 @@ fun SectionCustomAlertDialog() {
         Text(
             "custom alertDialog"
         )
-        if(openAlertDialog){
+        if (openAlertDialog) {
             AlertDialog(
                 shape = RoundedCornerShape(16.dp),
                 onDismissRequest = { openAlertDialog = false },
@@ -550,20 +584,20 @@ fun SectionCustomAlertDialog() {
 }
 
 @Composable
-fun ShowOrderList(){
+fun ShowOrderList() {
     LazyColumn {
-        items(orderList){ item ->
+        items(orderList) { item ->
             ItemView(title = item)
         }
     }
 }
 
 @Composable
-fun ItemView(title : String){
+fun ItemView(title: String) {
     Row(
         modifier = Modifier.fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically
-    ){
+    ) {
         Image(
             painter = painterResource(R.drawable.ic_launcher_foreground),
             contentDescription = ""
@@ -576,14 +610,14 @@ fun ItemView(title : String){
 }
 
 @Composable
-private fun TestSideEffectCode(){
+private fun TestSideEffectCode() {
     var ref by remember { mutableIntStateOf(0) }
     // always run when recompose
     SideEffect {
         ref++
     }
-    Log.d("debug","ref value --> $ref")
+    Log.d("debug", "ref value --> $ref")
 
 }
 
-val orderList = listOf("First","Second","third","Fourth","Fifth","Sixth","Seventh")
+val orderList = listOf("First", "Second", "third", "Fourth", "Fifth", "Sixth", "Seventh")

@@ -68,6 +68,7 @@ import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
@@ -112,6 +113,7 @@ class MainActivity : ComponentActivity() {
 
                         SectionCustomAlertDialog()
 
+                        NavigateToNestedLazyListScreen()
 
                         TestLaunchedEffectCode()
 
@@ -540,6 +542,7 @@ fun SectionMyBottomSheetDialog() {
     }
 }
 
+// ****
 @Composable
 fun SectionCustomAlertDialog() {
     var openAlertDialog by remember {
@@ -580,6 +583,16 @@ fun SectionCustomAlertDialog() {
                 },
             )
         }
+    }
+}
+
+@Composable
+private fun NavigateToNestedLazyListScreen(){
+    val context = LocalContext.current
+    Button(onClick = {
+        NestedLazyListActivity.navigate(context = context)
+    }) {
+        Text(text = "navigate to NestedLazyList")
     }
 }
 

@@ -6,4 +6,5 @@
     <string name="title_basic_textfield">Using BasicTextField</string>
     <string name="button_text_alertdialog">"Show AlertDialog"</string>
     <string name="button_text_bottomsheet">show BottomSheet</string>
+    <string name="title_activity_nested_lazy_list">NestedLazyListActivity</string>
 </resources>

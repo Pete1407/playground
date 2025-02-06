@@ -11,4 +11,7 @@
     <color name="header_text_color">#525E75</color>
     <color name="placeholder_text_color">#A9ACB0</color>
     <color name="color_input_point">#77839A</color>
+    <color name="bg_app">#F8F7F7</color>
+    <color name="border_shape_color">#E0E0E0</color>
+    <color name="color_text">#323D51</color>
 </resources>

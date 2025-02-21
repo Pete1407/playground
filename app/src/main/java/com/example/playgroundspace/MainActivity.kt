@@ -46,7 +46,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -88,6 +91,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.WindowCompat
+import androidx.navigation.NavController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.playgroundspace.compose.MyToolbar
+import com.example.playgroundspace.model.BottomNavigationItem
+import com.example.playgroundspace.model.Screens
 import com.example.playgroundspace.ui.theme.PaddingAll
 import com.example.playgroundspace.ui.theme.PaddingTop
 import com.example.playgroundspace.ui.theme.PlaygroundSpaceTheme
@@ -99,29 +109,91 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+
         setContent {
             WindowCompat.setDecorFitsSystemWindows(window, false)
+
+            var navigationSelectedItem by remember {
+                mutableIntStateOf(0)
+            }
+
+            val navController = rememberNavController()
+
             Scaffold(
+                // content
                 content = { paddingValues ->
-                    // comment for column
-                    Column(modifier = Modifier.padding(paddingValues)) {
-                        // comment for first text
+                    NavHost(
+                        navController = navController,
+                        startDestination = Screens.Home.route,
+                        modifier = Modifier.padding(paddingValues)
+                    ) {
+                        composable(Screens.Home.route){
+                            HomeScreen(navController)
+                        }
 
-                        SectionBasicTextField()
+                        composable(Screens.Search.route){
+                            SearchScreen(navController)
+                        }
 
-                        SectionAlertDialog()
-
-                        SectionCustomAlertDialog()
-
-                        NavigateToNestedLazyListScreen()
-
-                        TestLaunchedEffectCode()
-
-                        //TestSideEffectCode()
+                        composable(Screens.Profile.route){
+                            ProfileScreen(navController)
+                        }
                     }
+
+                    // comment for column
+//                    Column(modifier = Modifier.padding(paddingValues)) {
+//                        // comment for first text
+//
+//                        SectionBasicTextField()
+//
+//                        SectionAlertDialog()
+//
+//                        SectionCustomAlertDialog()
+//
+//                        NavigateToNestedLazyListScreen()
+//
+//                        TestLaunchedEffectCode()
+//
+//                        //TestSideEffectCode()
+//                    }
                 },
-                floatingActionButton = {
-                    SectionMyBottomSheetDialog()
+//                floatingActionButton = {
+//                    SectionMyBottomSheetDialog()
+//                },
+                bottomBar = {
+                    NavigationBar {
+                        BottomNavigationItem().bottomNavigationItems().forEachIndexed { index, bottomNavigationItem ->
+                            NavigationBarItem(
+                                selected = index == navigationSelectedItem,
+                                label = {
+                                    Text(text = bottomNavigationItem.label)
+                                },
+                                onClick = {
+                                    navigationSelectedItem = index
+                                    navController.navigate(bottomNavigationItem.route){
+                                        popUpTo(navController.graph.startDestinationId){
+                                            saveState = true
+                                        }
+                                        launchSingleTop = true
+                                        restoreState = true
+                                    }
+                                },
+                                icon = {
+                                    Icon(
+                                        imageVector = bottomNavigationItem.icon,
+                                        contentDescription = ""
+                                    )
+                                }
+                            )
+                        }
+                    }
+
+                },
+                topBar = {
+                    MyToolbar(
+                        title = resources.getString(R.string.app_name),
+                        isShowBackButton = false
+                    )
                 }
             )
         }
@@ -129,23 +201,52 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun TestRevertCommit() {
-    // comment for first text
-    Text(
-        text = "First Text"
-    )
-    // comment for second text
-    Text(
-        text = "Second Text"
-    )
-    // comment for third text
-    Text(
-        text = "Third Text"
-    )
-    // comment for fourth text
-    Text(
-        text = "Fourth Text"
-    )
+fun HomeScreen(navController: NavController){
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        color = Color.Blue
+    ) {
+        Column(modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
+            Text(
+                text = "HomeScreen",
+                color = Color.White,
+                fontSize = 40.sp
+            )
+        }
+    }
+}
+
+@Composable
+fun SearchScreen(navController: NavController){
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        contentColor = Color.Black
+    ) {
+        Column {
+            Text(
+                text = "SearchScreen",
+                color = Color.White
+            )
+        }
+    }
+}
+
+@Composable
+fun ProfileScreen(navController: NavController){
+    Surface(
+        modifier = Modifier.fillMaxSize(),
+        contentColor = Color.Black
+    ) {
+        Column {
+            Text(
+                text = "ProfileScreen",
+                color = Color.White
+            )
+        }
+    }
 }
 
 @OptIn(FlowPreview::class)
@@ -456,8 +557,6 @@ fun TestLaunchedEffectCode() {
     var secondProveValue by remember {
         mutableStateOf(true)
     }
-    //Log.d("debug","see value textValue outside LaunchedEffect --> $textValue")
-    //Log.d("debug","count value --> $count")
 
     // try LaunchedEffect
     LaunchedEffect(numberValue, secondProveValue) {

@@ -11,4 +11,5 @@
     <string name="pumpkin_screen_route">pumpkin_screen_route</string>
     <string name="ghost_screen_route">ghost_screen_route</string>
     <string name="scary_bag_screen_route">scary_bag_screen_route</string>
+    <string name="see_detail">See Detail</string>
 </resources>

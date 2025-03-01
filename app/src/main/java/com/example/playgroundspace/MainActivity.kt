@@ -3,6 +3,7 @@ package com.example.playgroundspace
 import android.app.Activity
 import android.os.Bundle
 import android.util.Log
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -94,6 +95,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.WindowCompat
+import androidx.fragment.app.FragmentContainerView
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHost
@@ -102,7 +104,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.playgroundspace.compose.HomeScreen
 import com.example.playgroundspace.compose.MyToolbar
+import com.example.playgroundspace.compose.ProfileScreen
+import com.example.playgroundspace.compose.SearchScreen
 import com.example.playgroundspace.model.BottomNavigationScreen
 import com.example.playgroundspace.ui.theme.PaddingAll
 import com.example.playgroundspace.ui.theme.PaddingTop
@@ -129,9 +134,9 @@ class MainActivity : ComponentActivity() {
 fun MainScreen(){
     val navController = rememberNavController()
     val bottomNavigationItems = listOf(
-        BottomNavigationScreen.Frankendroid,
-        BottomNavigationScreen.Pumpkin,
-        BottomNavigationScreen.Ghost
+        BottomNavigationScreen.HomeScreen,
+        BottomNavigationScreen.SearchScreen,
+        BottomNavigationScreen.ProfileScreen
     )
     var navigationSelectedItem by remember {
         mutableIntStateOf(0)
@@ -156,7 +161,7 @@ fun MainScreen(){
                         onClick = {
                             navigationSelectedItem = index
                             navController.navigate(bottomNavigationScreen.route){
-                                popUpTo(navController.graph.findStartDestination().id){
+                                popUpTo(navController.graph.startDestinationId){
                                     saveState = true
                                 }
                                 launchSingleTop = true
@@ -177,75 +182,22 @@ fun MainScreenNavigationConfigurations(
     navController : NavHostController,
     paddingValues: PaddingValues
 ){
+    val context = LocalContext.current
     NavHost(
         navController = navController,
         modifier = Modifier.padding(paddingValues),
-        startDestination = BottomNavigationScreen.Frankendroid.route){
-        composable(BottomNavigationScreen.Frankendroid.route){
-            HomeScreen()
+        startDestination = BottomNavigationScreen.HomeScreen.route){
+
+        composable(BottomNavigationScreen.HomeScreen.route){
+            HomeScreen(onSelectCharacter = { result ->
+                Toast.makeText(context,"user selected --> ${result.name}", Toast.LENGTH_SHORT).show()
+            })
         }
-        composable(BottomNavigationScreen.Pumpkin.route){
+        composable(BottomNavigationScreen.SearchScreen.route){
             SearchScreen()
         }
-        composable(BottomNavigationScreen.Ghost.route){
+        composable(BottomNavigationScreen.ProfileScreen.route){
             ProfileScreen()
-        }
-    }
-}
-
-@Composable
-fun HomeScreen(){
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        color = Color.Blue
-    ) {
-        Column(modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            Text(
-                text = "HomeScreen",
-                color = Color.Black,
-                fontSize = 40.sp
-            )
-        }
-    }
-}
-
-@Composable
-fun SearchScreen(){
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        contentColor = Color.Blue
-    ) {
-        Column(modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            Text(
-                text = "SearchScreen",
-                color = Color.Black,
-                fontSize = 40.sp
-            )
-        }
-    }
-}
-
-@Composable
-fun ProfileScreen(){
-    Surface(
-        modifier = Modifier.fillMaxSize(),
-        contentColor = Color.Blue
-    ) {
-        Column(modifier = Modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ){
-            Text(
-                text = "ProfileScreen",
-                color = Color.Black,
-                fontSize = 40.sp
-            )
         }
     }
 }

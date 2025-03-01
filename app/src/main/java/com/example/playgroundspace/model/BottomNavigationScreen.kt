@@ -9,8 +9,8 @@ sealed class BottomNavigationScreen(
     val icon : Int
 ){
 
-    object Frankendroid : BottomNavigationScreen("Frankendroid", "frankendroid_route",R.drawable.ic_android)
-    object Pumpkin : BottomNavigationScreen("Pumpkin","pumpkin_screen_route",R.drawable.ic_caske)
-    object Ghost : BottomNavigationScreen("Ghost","ghost_screen_route",R.drawable.ic_moon)
+    object HomeScreen : BottomNavigationScreen("HomeScreen", "home_screen_route",R.drawable.ic_android)
+    object SearchScreen : BottomNavigationScreen("SearchScreen","search_screen_route",R.drawable.ic_caske)
+    object ProfileScreen : BottomNavigationScreen("ProfileScreen","profile_screen_route",R.drawable.ic_moon)
 
 }

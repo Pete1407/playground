@@ -2,6 +2,7 @@ package com.example.playgroundspace.compose
 
 import androidx.compose.foundation.background
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -42,8 +43,9 @@ fun MyToolbar(
             if(isShowBackButton){
                 IconButton(onClick = {}){
                     Icon(
-                        painter = painterResource(R.drawable.ic_arrow_back),
-                        contentDescription = ""
+                        imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                        contentDescription = "",
+                        tint = Color.White
                     )
                 }
             }

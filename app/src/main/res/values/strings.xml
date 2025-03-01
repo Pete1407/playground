@@ -7,4 +7,8 @@
     <string name="button_text_alertdialog">"Show AlertDialog"</string>
     <string name="button_text_bottomsheet">show BottomSheet</string>
     <string name="title_activity_nested_lazy_list">NestedLazyListActivity</string>
+    <string name="frankendroid_route">frankendroid_route</string>
+    <string name="pumpkin_screen_route">pumpkin_screen_route</string>
+    <string name="ghost_screen_route">ghost_screen_route</string>
+    <string name="scary_bag_screen_route">scary_bag_screen_route</string>
 </resources>

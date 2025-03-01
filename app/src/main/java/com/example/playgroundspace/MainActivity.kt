@@ -15,6 +15,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
@@ -48,6 +49,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -79,6 +81,7 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontStyle
@@ -92,12 +95,15 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.DialogProperties
 import androidx.core.view.WindowCompat
 import androidx.navigation.NavController
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHost
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.playgroundspace.compose.MyToolbar
-import com.example.playgroundspace.model.BottomNavigationItem
-import com.example.playgroundspace.model.Screens
+import com.example.playgroundspace.model.BottomNavigationScreen
 import com.example.playgroundspace.ui.theme.PaddingAll
 import com.example.playgroundspace.ui.theme.PaddingTop
 import com.example.playgroundspace.ui.theme.PlaygroundSpaceTheme
@@ -112,96 +118,83 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             WindowCompat.setDecorFitsSystemWindows(window, false)
-
-            var navigationSelectedItem by remember {
-                mutableIntStateOf(0)
+            PlaygroundSpaceTheme {
+                MainScreen()
             }
-
-            val navController = rememberNavController()
-
-            Scaffold(
-                // content
-                content = { paddingValues ->
-                    NavHost(
-                        navController = navController,
-                        startDestination = Screens.Home.route,
-                        modifier = Modifier.padding(paddingValues)
-                    ) {
-                        composable(Screens.Home.route){
-                            HomeScreen(navController)
-                        }
-
-                        composable(Screens.Search.route){
-                            SearchScreen(navController)
-                        }
-
-                        composable(Screens.Profile.route){
-                            ProfileScreen(navController)
-                        }
-                    }
-
-                    // comment for column
-//                    Column(modifier = Modifier.padding(paddingValues)) {
-//                        // comment for first text
-//
-//                        SectionBasicTextField()
-//
-//                        SectionAlertDialog()
-//
-//                        SectionCustomAlertDialog()
-//
-//                        NavigateToNestedLazyListScreen()
-//
-//                        TestLaunchedEffectCode()
-//
-//                        //TestSideEffectCode()
-//                    }
-                },
-//                floatingActionButton = {
-//                    SectionMyBottomSheetDialog()
-//                },
-                bottomBar = {
-                    NavigationBar {
-                        BottomNavigationItem().bottomNavigationItems().forEachIndexed { index, bottomNavigationItem ->
-                            NavigationBarItem(
-                                selected = index == navigationSelectedItem,
-                                label = {
-                                    Text(text = bottomNavigationItem.label)
-                                },
-                                onClick = {
-                                    navigationSelectedItem = index
-                                    navController.navigate(bottomNavigationItem.route){
-                                        popUpTo(navController.graph.startDestinationId){
-                                            saveState = true
-                                        }
-                                        launchSingleTop = true
-                                        restoreState = true
-                                    }
-                                },
-                                icon = {
-                                    Icon(
-                                        imageVector = bottomNavigationItem.icon,
-                                        contentDescription = ""
-                                    )
-                                }
-                            )
-                        }
-                    }
-
-                },
-                topBar = {
-                    MyToolbar(
-                        title = resources.getString(R.string.app_name),
-                        isShowBackButton = false
-                    )
-                }
-            )
         }
     }
 }
 
 @Composable
-fun HomeScreen(navController: NavController){
+fun MainScreen(){
+    val navController = rememberNavController()
+    val bottomNavigationItems = listOf(
+        BottomNavigationScreen.Frankendroid,
+        BottomNavigationScreen.Pumpkin,
+        BottomNavigationScreen.Ghost
+    )
+    var navigationSelectedItem by remember {
+        mutableIntStateOf(0)
+    }
+
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        bottomBar = {
+            NavigationBar {
+                bottomNavigationItems.forEachIndexed { index, bottomNavigationScreen ->
+                    NavigationBarItem(
+                        selected = index == navigationSelectedItem,
+                        label = {
+                            Text(text = bottomNavigationScreen.label)
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = ImageVector.vectorResource(bottomNavigationScreen.icon),
+                                contentDescription = ""
+                            )
+                        },
+                        onClick = {
+                            navigationSelectedItem = index
+                            navController.navigate(bottomNavigationScreen.route){
+                                popUpTo(navController.graph.findStartDestination().id){
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                        }
+                    )
+                }
+            }
+        }
+    ){ paddingValue ->
+        MainScreenNavigationConfigurations(navController,paddingValue)
+    }
+}
+
+@Composable
+fun MainScreenNavigationConfigurations(
+    navController : NavHostController,
+    paddingValues: PaddingValues
+){
+    NavHost(
+        navController = navController,
+        modifier = Modifier.padding(paddingValues),
+        startDestination = BottomNavigationScreen.Frankendroid.route){
+        composable(BottomNavigationScreen.Frankendroid.route){
+            HomeScreen()
+        }
+        composable(BottomNavigationScreen.Pumpkin.route){
+            SearchScreen()
+        }
+        composable(BottomNavigationScreen.Ghost.route){
+            ProfileScreen()
+        }
+    }
+}
+
+@Composable
+fun HomeScreen(){
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = Color.Blue
@@ -212,7 +205,7 @@ fun HomeScreen(navController: NavController){
         ){
             Text(
                 text = "HomeScreen",
-                color = Color.White,
+                color = Color.Black,
                 fontSize = 40.sp
             )
         }
@@ -220,30 +213,38 @@ fun HomeScreen(navController: NavController){
 }
 
 @Composable
-fun SearchScreen(navController: NavController){
+fun SearchScreen(){
     Surface(
         modifier = Modifier.fillMaxSize(),
-        contentColor = Color.Black
+        contentColor = Color.Blue
     ) {
-        Column {
+        Column(modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
             Text(
                 text = "SearchScreen",
-                color = Color.White
+                color = Color.Black,
+                fontSize = 40.sp
             )
         }
     }
 }
 
 @Composable
-fun ProfileScreen(navController: NavController){
+fun ProfileScreen(){
     Surface(
         modifier = Modifier.fillMaxSize(),
-        contentColor = Color.Black
+        contentColor = Color.Blue
     ) {
-        Column {
+        Column(modifier = Modifier.fillMaxSize(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ){
             Text(
                 text = "ProfileScreen",
-                color = Color.White
+                color = Color.Black,
+                fontSize = 40.sp
             )
         }
     }
